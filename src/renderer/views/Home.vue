@@ -184,8 +184,16 @@ export default {
 
     async downloadExcel () {
       const len = this.multipleSelection.length
-
       if (len > 0) {
+
+        // copy multipleSelection
+        const multiple = []
+        for (let i = 0; i < len; i++) {
+          const item = this.multipleSelection[i]
+          const copy = Object.assign({}, item)
+          multiple.push(copy)
+        }
+
         //  fullscreen
         const loading = this.$loading({
           lock: true,
@@ -194,52 +202,65 @@ export default {
           background: 'rgba(0, 0, 0, 0.7)'
         })
 
-        const canDownload = true
-        const arr = []
-        for (let i = 0, len = this.multipleSelection.length; i < len; i++) {
-          const { filepath, name, key, mtime } = this.multipleSelection[i]
-          // console.log({ filepath, name, key, mtime })
+        try {
+          // const canDownload = true
+          const arr = []
+          for (let i = 0; i < len; i++) {
+            const { filepath, name, key, mtime } = multiple[i]
+            console.log({ filepath, name, key, mtime })
 
-          const msg = {
-            key: 'coverTxt',
-            req: {
-              filepath,
-              name
+            const msg = {
+              key: 'coverTxt',
+              req: {
+                filepath,
+                name
+              }
+            }
+            const { code, message, data } = await this.$$ipc.send(msg)
+
+            let checked = -1
+            if (code === 0) {
+              arr.push(data)
+              checked = 1
+            }
+
+            const index = this.findIndex(key)
+            if (index > -1) {
+              this.txtlist.splice(index, 1, {
+                filepath,
+                name,
+                key,
+                mtime,
+                checked
+              })
+            }
+
+            if (checked === -1) {
+              this.$notify.error({
+                position: 'bottom-left',
+                title: code,
+                message
+              })
+              loading.close()
+              return
             }
           }
-          const { code, message, data } = await this.$$ipc.send(msg)
 
-          let checked = -1
-          if (code === 0) {
-            arr.push(data)
-            checked = 1
-          }
+          loading.close()
 
-          const index = this.findIndex(key)
-          if (index > -1) {
-            this.txtlist.splice(index, 1, {
-              filepath,
-              name,
-              key,
-              mtime,
-              checked
-            })
-          }
-
-          if (checked === -1) {
-            this.$notify.error({
-              position: 'bottom-left',
-              title: code,
-              message
-            })
-            break
-          }
+          // download excel
+          this.download(arr)
+        } catch (error) {
+          console.log(error.message)
+          const code = error.status || error.code || '1000004'
+          const message = error.message || 'unknown error 1000004'
+          this.$notify.error({
+            position: 'bottom-left',
+            title: code,
+            message
+          })
+          loading.close()
         }
-
-        loading.close()
-
-        // download excel
-        this.download(arr)
       }
     },
 
