@@ -1,0 +1,7 @@
+.DS_Store
+.vscode
+coverage
+dist
+temp
+doc
+node_modules

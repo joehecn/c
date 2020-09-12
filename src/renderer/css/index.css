@@ -1,0 +1,39 @@
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #app {
+  height: 100%;
+}
+
+body {
+  background: white;
+}
+
+/* 
+#device-point-wrap .el-transfer-panel {
+  width: 310px;
+}
+
+#device-point-wrap .el-transfer-panel__body,
+#device-point-wrap .el-transfer-panel__list {
+  height: 380px;
+}
+
+#device-point-wrap .el-transfer-panel__item {
+  height: unset;
+}
+
+#device-point-wrap .el-checkbox {
+  margin-right: 0;
+}
+
+#device-point-wrap .el-transfer-panel__item.el-checkbox .el-checkbox__label {
+  line-height: 18px;
+}
+
+#nomal-wrap input {
+  width: 300px;
+} */
