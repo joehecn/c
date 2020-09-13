@@ -65,6 +65,7 @@
   },
   "dependencies": {
     "electron-baidu-tongji": "^1.0.2",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "superagent": "^6.1.0"
   }
 }

@@ -32,7 +32,9 @@ import fun from '../util/fun.js'
 import { shell } from 'electron'
 
 import { ipcRenderer } from 'electron'
-import { ebtRenderer } from 'electron-baidu-tongji'
+// import { ebtRenderer } from 'electron-baidu-tongji'
+import baiduTonji from '../util/tongji.js'
+const { ebtRenderer } = baiduTonji
 
 const { checkVersion } = fun
 window.JOE_GLOBAL_SHELL = shell

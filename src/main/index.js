@@ -4,7 +4,9 @@ import * as path from 'path'
 import { format as formatUrl } from 'url'
 import ctrlMsg from './ctrlMsg/index.js'
 
-import { ebtMain } from 'electron-baidu-tongji'
+// import { ebtMain } from 'electron-baidu-tongji'
+import baiduTonji from '../util/tongji.js'
+const { ebtMain } = baiduTonji
 
 // 关闭警告
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
@@ -54,7 +56,6 @@ const createMenu = () => {
 // 开发模式
 const makeDevelopmentMode = win => {
   win.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}/`)
-
   // 打开开发者工具
   win.webContents.openDevTools()
 }
@@ -66,6 +67,8 @@ const makeProductMode = win => {
     protocol: 'file',
     slashes: true
   }))
+  // 打开开发者工具
+  win.webContents.openDevTools()
 }
 
 const createMainWindow = () => {
