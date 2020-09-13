@@ -4,6 +4,8 @@ import * as path from 'path'
 import { format as formatUrl } from 'url'
 import ctrlMsg from './ctrlMsg/index.js'
 
+import { ebtMain } from 'electron-baidu-tongji'
+
 // 关闭警告
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
 
@@ -136,3 +138,6 @@ ipcMain.on('msg', async (event, msg) => {
   await ctrlMsg(msg, mainWindow)
   event.reply(msg.keyTime, msg)
 })
+
+// 百度统计
+ebtMain(ipcMain)

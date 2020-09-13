@@ -1,20 +1,65 @@
-import fun from './fun.js'
 
+import fun from './fun.js'
 const { createErr } = fun
 
+const accMul = (arg1, arg2) => {
+  let m = 0
+  let s1 = arg1.toString()
+  let s2 = arg2.toString()
+
+  try {
+      m += s1.split('.')[1].length;
+  } catch (e) {
+    return 0
+  }
+  try {
+      m += s2.split('.')[1].length;
+  } catch (e) {
+    return 0
+  }
+
+  return Number(s1.replace('.', '')) * Number(s2.replace('.', '')) / Math.pow(10, m)
+}
+
 const coverFirst = first => {
-  const [reginKey, reginValue,, pointKey, pointValue,, selected] = first
-  const listCount = parseInt(selected.split('(')[1])
-  // console.log({ listCount })
-  let send = 0
-  const _s = pointValue.split('($')[1]
-  if (_s) send = parseFloat(_s.trim()) * 100 || 0
-  return { head: [reginKey, reginValue, pointKey, pointValue], send, listCount }
+  console.log({ first })
+
+  if (first.length === 8) {
+    const [reginKey, reginValue,, pointKey, pointValue] = first
+    const selected = first[6]
+    const listCount = parseInt(selected.split('(')[1])
+    // console.log({ listCount })
+    let send = 0
+    console.log({ pointValue })
+    const _s = pointValue && pointValue.split('($')[1]
+    if (_s) {
+      const p = parseFloat(_s.trim())
+      const pp = accMul(p, 100)
+      send = pp || 0
+    }
+
+    return { head: [reginKey, reginValue, pointKey, pointValue], send, listCount }
+  } else {
+    const [reginKey, reginValue] = first
+
+    const selected = first[first.length - 2]
+
+    const listCount = parseInt(selected.split('(')[1])
+    // console.log({ listCount })
+    const pointKey = ''
+    const pointValue = ''
+    const send = 0
+
+    return { head: [reginKey, reginValue, pointKey, pointValue], send, listCount }
+  }
 }
 const getHKY = price => {
   if (price === undefined) return 0
 
-  return parseFloat(price.replace('HK$', '').trim()) * 100
+  const p = parseFloat(price.replace('HK$', '').trim())
+  const pp = accMul(p, 100)
+  console.log({ price, p, pp })
+  return pp
 }
 const coverIts = its => {
   const [, zh, en, price, unitStr] = its

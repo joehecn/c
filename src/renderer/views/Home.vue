@@ -73,9 +73,6 @@ export default {
   data() {
     return {
       pickerOptions: {
-        // disabledDate(time) {
-        //   return time.getTime() > Date.now();
-        // },
         shortcuts: [{
           text: 'Today',
           onClick(picker) {
@@ -97,7 +94,7 @@ export default {
           }
         }]
       },
-      date: new Date(),
+      // date: new Date(),
       txtlist: [],
       multipleSelection: []
     }
@@ -106,7 +103,16 @@ export default {
   computed: {
     ...mapState({
       workDir: state => state.workDir
+      // enterHomeFirstTime: state => state.enterHomeFirstTime
     }),
+    date: {
+      get () {
+      return this.$store.state.date
+      },
+      set (value) {
+        this.$store.commit('setDate', value)
+      }
+    },
     dateStr () {
       if (this.date) {
         return this.$$moment(this.date).format('YYYY-MM-DD')
@@ -117,18 +123,21 @@ export default {
 
   watch: {
     async dateStr (value) {
-      // console.log('findTxtlistByDate from watch')
+      console.log('findTxtlistByDate from watch')
       this.txtlist = await this.findTxtlistByDate(value)
-    },
-
-    txtlist (value) {
-      if (value.length > 0) {
-        this.$refs.multipleTable.toggleAllSelection()
-      }
+      this.$refs.multipleTable.toggleAllSelection()
     }
+
+    // txtlist (value) {
+    //   console.log('--- txtlist change')
+    //   if (value.length > 0) {
+    //     this.$refs.multipleTable.toggleAllSelection()
+    //   }
+    // }
   },
 
   async mounted () {
+    console.log('Home mounted')
     if (!this.workDir) {
       this.$notify.warning({
         position: 'bottom-left',
@@ -136,12 +145,12 @@ export default {
         message: 'Please chose a work directory'
       })
       this.$router.push('./config')
-    } else {
-      const date = new Date()
-      this.date = date
+    } else if (this.date) {
+      // this.$store.commit('setEnterHomeFirstTime')
       const dateStr = this.$$moment(this.date).format('YYYY-MM-DD')
-      // console.log('findTxtlistByDate from mounted')
+      console.log('findTxtlistByDate from mounted')
       this.txtlist = await this.findTxtlistByDate(dateStr)
+      this.$refs.multipleTable.toggleAllSelection()
     }
   },
 
@@ -168,7 +177,6 @@ export default {
     },
 
     handleSelectionChange (val) {
-      // console.log('--- handleSelectionChange')
       this.multipleSelection = val
     },
 
@@ -207,7 +215,7 @@ export default {
           const arr = []
           for (let i = 0; i < len; i++) {
             const { filepath, name, key, mtime } = multiple[i]
-            console.log({ filepath, name, key, mtime })
+            // console.log({ filepath, name, key, mtime })
 
             const msg = {
               key: 'coverTxt',
@@ -226,14 +234,20 @@ export default {
 
             const index = this.findIndex(key)
             if (index > -1) {
-              this.txtlist.splice(index, 1, {
+              const row = {
                 filepath,
                 name,
                 key,
                 mtime,
                 checked
-              })
+              }
+              this.txtlist.splice(index, 1, row)
+
+              if (checked === 1) {
+                this.$refs.multipleTable.toggleRowSelection(row)
+              }
             }
+
 
             if (checked === -1) {
               this.$notify.error({

@@ -29,11 +29,16 @@ import userController from './controller/user.js'
 import workDirController from './controller/workDir.js'
 
 import fun from '../util/fun.js'
-
 import { shell } from 'electron'
-window.JOE_GLOBAL_SHELL = shell
+
+import { ipcRenderer } from 'electron'
+import { ebtRenderer } from 'electron-baidu-tongji'
 
 const { checkVersion } = fun
+window.JOE_GLOBAL_SHELL = shell
+// 百度统计 siteId
+const BAIDU_SITE_ID = 'f3b6b71c1bc16c915445fd90679f9934'
+
 
 Vue.prototype.$$moment = moment
 Vue.prototype.$$ipc = ipc
@@ -75,6 +80,9 @@ userController.initAdmin().then(/* console.log */)
 
 // init work directory
 workDirController.initWorkDir().then(/* console.log */)
+
+// 百度统计
+ebtRenderer(ipcRenderer, BAIDU_SITE_ID, router)
 
 new Vue({
   store,
