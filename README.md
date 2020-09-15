@@ -21,6 +21,9 @@ Convert txt to excel
 - [x] 系统初始化时设置一次当前日期
 - [x] 每一次日期改变时，全选一次 item
 - [x] baidu 统计
+- [] 改进 accMul *100 算法
+- [] main json 数据库
+- [] 修改密码
 
 ## electron cache
 cd /Users/hemiao/Library/Caches/electron
@@ -30,5 +33,3 @@ ELECTRON_MIRROR=https://cdn.npm.taobao.org/dist/electron/ npm install -D electro
 npm i -D webpack electron-webpack electron-builder
 npm i -S source-map-support
 ```
-
-

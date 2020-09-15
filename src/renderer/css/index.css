@@ -11,8 +11,11 @@ html, body, #app {
 body {
   background: white;
 }
+body.electron-baidu-tongji_dev {
+  background: #dff0d8;
+}
 
-/* 
+/*
 #device-point-wrap .el-transfer-panel {
   width: 310px;
 }

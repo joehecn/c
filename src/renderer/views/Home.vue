@@ -36,14 +36,16 @@
         </el-table-column>
 
         <el-table-column
-          label="mtime">
+          label="mtime"
+          width="200px">
           <template slot-scope="scope">
             <div>{{ $$moment(scope.row.mtime).format('YYYY-MM-DD HH:mm:ss') }}</div>
           </template>
         </el-table-column>
 
         <el-table-column
-          label="checked">
+          label="checked"
+          width="100px">
           <template slot-scope="scope">
             <i v-if="scope.row.checked===1" class="el-icon-check"></i>
             <i v-else-if="scope.row.checked===-1" class="el-icon-close"></i>

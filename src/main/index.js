@@ -4,9 +4,8 @@ import * as path from 'path'
 import { format as formatUrl } from 'url'
 import ctrlMsg from './ctrlMsg/index.js'
 
-// import { ebtMain } from 'electron-baidu-tongji'
-import baiduTonji from '../util/tongji.js'
-const { ebtMain } = baiduTonji
+import { ebtMain } from 'electron-baidu-tongji'
+// import { ebtMain } from '../tongji'
 
 // 关闭警告
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
@@ -68,7 +67,7 @@ const makeProductMode = win => {
     slashes: true
   }))
   // 打开开发者工具
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
 }
 
 const createMainWindow = () => {
@@ -143,4 +142,4 @@ ipcMain.on('msg', async (event, msg) => {
 })
 
 // 百度统计
-ebtMain(ipcMain)
+ebtMain(ipcMain, isDevelopment)

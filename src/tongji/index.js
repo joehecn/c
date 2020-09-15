@@ -1,11 +1,11 @@
 
-import request from 'superagent'
+const request = require('superagent')
 
 /**
  * first step
  * @param {*} ipcMain
  */
-export const ebtMain = ipcMain => {
+const ebtMain = (ipcMain, isDevelopment) => {
   /* istanbul ignore else */
   if (!(ipcMain && ipcMain.on)) {
     throw new TypeError(`require ipcMain`)
@@ -25,18 +25,16 @@ export const ebtMain = ipcMain => {
         /* istanbul ignore else */
         if (res.text && res.text.includes(rource)) {
           // step 3
-          const isDevelopment = process.env.NODE_ENV !== 'production'
-          if (isDevelopment) {
-            event.sender.send('electron-baidu-tongji-reply', res.text)
-            return
+          let text = res.text
+          if (!isDevelopment) {
+            // 百度统计可能改规则了，不统计 file:// 开始的请求
+            // 这里强制替换为 https
+            const target = '(h.c.b.su=h.c.b.u||"https://"+c.dm[0]+a[1]),h.c.b.u="https://"+c.dm[0]+'
+            const target2 = '"https://"+c.dm[0]+window.location.pathname+window.location.hash'
+            text = res.text.replace(rource, target).replace(/window.location.href/g, target2)
           }
 
-          // 百度统计可能改规则了，不统计 file:// 开始的请求
-          // 这里强制替换为 https
-          const target = '(h.c.b.su=h.c.b.u||"https://"+c.dm[0]+a[1]),console.log(k,c,h.c,a),h.c.b.u="https://"+c.dm[0]+'
-          const target2 = '"https://"+c.dm[0]+window.location.pathname+window.location.hash'
-          const text = res.text.replace(rource, target).replace(/window.location.href/g, target2)
-          event.sender.send('electron-baidu-tongji-reply', text)
+          event.sender.send('electron-baidu-tongji-reply', { text, isDevelopment })
         }
       })
   })
@@ -48,7 +46,7 @@ export const ebtMain = ipcMain => {
  * @param {*} siteId
  * @param {*} router
  */
-export const ebtRenderer = (ipcRenderer, siteId, router) => {
+const ebtRenderer = (ipcRenderer, siteId, router) => {
   /* istanbul ignore else */
   if (!(ipcRenderer && ipcRenderer.on && ipcRenderer.send)) {
     throw new TypeError(`require ipcRenderer`)
@@ -60,11 +58,14 @@ export const ebtRenderer = (ipcRenderer, siteId, router) => {
   }
 
   // step 4
-  ipcRenderer.on('electron-baidu-tongji-reply', (_, arg) => {
+  ipcRenderer.on('electron-baidu-tongji-reply', (_, { text, isDevelopment }) => {
+    /* istanbul ignore else */
+    if (isDevelopment) { document.body.classList.add('electron-baidu-tongji_dev') }
+
     window._hmt = window._hmt || []
 
     let hm = document.createElement('script')
-    hm.text = arg
+    hm.text = text
 
     let head = document.getElementsByTagName('head')[0]
     head.appendChild(hm)
@@ -88,3 +89,5 @@ export const ebtRenderer = (ipcRenderer, siteId, router) => {
   // step 1
   ipcRenderer.send('electron-baidu-tongji-message', siteId)
 }
+
+module.exports = { ebtMain, ebtRenderer }

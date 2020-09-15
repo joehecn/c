@@ -64,7 +64,7 @@
     "webpack": "^4.44.1"
   },
   "dependencies": {
-    "electron-baidu-tongji": "^1.0.2",
+    "electron-baidu-tongji": "^1.0.5",
     "source-map-support": "^0.5.19",
     "superagent": "^6.1.0"
   }
