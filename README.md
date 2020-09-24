@@ -17,10 +17,14 @@ Convert txt to excel
 - [x] U: 仅在初始化时设置一次今日
 - [x] A: baidu 统计
 
+5.0.0
+- [x] F: 金额为 0
+
 ## TODO
 - [x] 系统初始化时设置一次当前日期
 - [x] 每一次日期改变时，全选一次 item
 - [x] baidu 统计
+- [] 新增 给供应商的 文本
 - [] 改进 accMul *100 算法
 - [] main json 数据库
 - [] 修改密码

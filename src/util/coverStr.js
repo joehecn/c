@@ -8,21 +8,24 @@ const accMul = (arg1, arg2) => {
   let s2 = arg2.toString()
 
   try {
-      m += s1.split('.')[1].length;
-  } catch (e) {
-    return 0
-  }
+    const after = s1.split('.')[1]
+    if (after && after.length) {
+      m += after.length
+    }
+  } catch (e) { return 0 }
+
   try {
-      m += s2.split('.')[1].length;
-  } catch (e) {
-    return 0
-  }
+    const after = s2.split('.')[1]
+    if (after && after.length) {
+      m += after.length
+    }
+  } catch (e) { return 0 }
 
   return Number(s1.replace('.', '')) * Number(s2.replace('.', '')) / Math.pow(10, m)
 }
 
 const coverFirst = first => {
-  console.log({ first })
+  // console.log({ first })
 
   if (first.length === 8) {
     const [reginKey, reginValue,, pointKey, pointValue] = first
@@ -30,7 +33,7 @@ const coverFirst = first => {
     const listCount = parseInt(selected.split('(')[1])
     // console.log({ listCount })
     let send = 0
-    console.log({ pointValue })
+    // console.log({ pointValue })
     const _s = pointValue && pointValue.split('($')[1]
     if (_s) {
       const p = parseFloat(_s.trim())
@@ -58,7 +61,7 @@ const getHKY = price => {
 
   const p = parseFloat(price.replace('HK$', '').trim())
   const pp = accMul(p, 100)
-  console.log({ price, p, pp })
+  // console.log({ price, p, pp })
   return pp
 }
 const coverIts = its => {
@@ -108,7 +111,7 @@ const coverStr = str => {
 
   // console.log({ listTotal, total })
   if (listTotal !== (total + discount + send)) {
-    console.log(listTotal, total, send)
+    // console.log(listTotal, total, send)
     throw createErr(301, 'Error list total')
   }
 

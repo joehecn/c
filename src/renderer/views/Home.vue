@@ -125,7 +125,7 @@ export default {
 
   watch: {
     async dateStr (value) {
-      console.log('findTxtlistByDate from watch')
+      // console.log('findTxtlistByDate from watch')
       this.txtlist = await this.findTxtlistByDate(value)
       this.$refs.multipleTable.toggleAllSelection()
     }
@@ -139,7 +139,7 @@ export default {
   },
 
   async mounted () {
-    console.log('Home mounted')
+    // console.log('Home mounted')
     if (!this.workDir) {
       this.$notify.warning({
         position: 'bottom-left',
@@ -150,7 +150,7 @@ export default {
     } else if (this.date) {
       // this.$store.commit('setEnterHomeFirstTime')
       const dateStr = this.$$moment(this.date).format('YYYY-MM-DD')
-      console.log('findTxtlistByDate from mounted')
+      // console.log('findTxtlistByDate from mounted')
       this.txtlist = await this.findTxtlistByDate(dateStr)
       this.$refs.multipleTable.toggleAllSelection()
     }
