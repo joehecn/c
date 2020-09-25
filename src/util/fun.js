@@ -32,8 +32,15 @@ const checkVersion = (tag_name, version) => {
   return 0 // 大版本不同
 }
 
+const getCount = (sourceCount, ratio) => {
+  const count = sourceCount * ratio
+  if (count % 1 === 0) return count
+  return count.toFixed(1)
+}
+
 export default {
   createErr,
   fixNumber,
-  checkVersion
+  checkVersion,
+  getCount
 }

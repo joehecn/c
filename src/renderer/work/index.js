@@ -26,8 +26,31 @@ const methods = {
     }
   },
 
+  // for test
   async resetDir (msg) {
     await api.sResetDir()
+
+    msg.body = {
+      code: 0,
+      message: ''
+    }
+  },
+
+  async getTxt (msg) {
+    const { req } = msg
+    const data = await api.sGetTxt(req)
+
+    msg.body = {
+      code: 0,
+      message: '',
+      data
+    }
+  },
+
+  async setTxt (msg) {
+    const { req } = msg
+
+    await api.sSetTxt(req)
 
     msg.body = {
       code: 0,

@@ -1,9 +1,9 @@
+
 import userService from '../service/user.js'
 
 const userController = {
   async findUser (userName) {
     const user = await userService.find(userName)
-
     return user
   },
 

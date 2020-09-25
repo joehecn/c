@@ -15,6 +15,12 @@
           type="primary"
           :disabled="multipleSelection.length === 0"
           @click="downloadExcel">Download excel</el-button>
+
+        <el-button
+          class="home-form-item"
+          type="primary"
+          :disabled="multipleSelection.length === 0"
+          @click="getTxt">給供應商</el-button>
       </div>
 
       <el-table
@@ -52,6 +58,67 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <div class="home-txt" :class="{ showTxt }">
+        <div class="close">
+          <i class="close-home-btn el-icon-close" @click="showTxt=false"></i>
+          <i class="copy-btn el-icon-document-copy" @click="copyTxt"></i>
+        </div>
+        <div class="container">
+          <div class="item table">
+            <table class="txttable" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th><!-- Choose --></th>
+                  <th>Source</th>
+                  <th>Ratio</th>
+                  <th>Name</th>
+                  <th>Count</th>
+                  <th>Unit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in tlist" :key="item.key" :class="{ ignore: !item.choose }">
+                  <td>
+                    <el-checkbox v-model="item.choose" @change="setItem(item)"></el-checkbox>
+                    <!-- <input type="CheckBox" name="choose" :value="item.choose"> -->
+                  </td>
+                  <td>
+                    {{ `${item.sourceName} ${item.sourceCount}${item.sourceUnit}` }}
+                  </td>
+                  <td>
+                    <!-- {{ item.ratio }} -->
+                    <el-input
+                      v-model="item.ratio"
+                      @change="setItem(item)"
+                      :disabled="!item.choose"
+                      style="width: 60px;"></el-input>
+                  </td>
+                  <td>
+                    <!-- {{ item.name }} -->
+                    <el-input
+                      v-model="item.name"
+                      @change="setItem(item)"
+                      :disabled="!item.choose"></el-input>
+                  </td>
+                  <td  style="text-align: right; padding-right: 4px;">
+                    {{ item.sourceCount * item.ratio | formatNum }}
+                  </td>
+                  <td>
+                    <!-- {{ item.unit }} -->
+                    <el-input
+                      v-model="item.unit"
+                      @change="setItem(item)"
+                      :disabled="!item.choose"
+                      style="width: 60px;"></el-input>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <textarea id="txtout" class="item txt" v-model="ttext" readonly></textarea>
+        </div>
+      </div>
     </div>
   </j-layout>
 </template>
@@ -65,7 +132,7 @@ import { saveAs } from 'file-saver';
 
 import fun from '../../util/fun.js'
 
-const { fixNumber } = fun
+const { fixNumber, getCount } = fun
 
 export default {
   components: {
@@ -98,7 +165,9 @@ export default {
       },
       // date: new Date(),
       txtlist: [],
-      multipleSelection: []
+      multipleSelection: [],
+      showTxt: false,
+      tlist: []
     }
   },
 
@@ -120,6 +189,19 @@ export default {
         return this.$$moment(this.date).format('YYYY-MM-DD')
       }
       return ''
+    },
+    ttext () {
+      return this.tlist
+        .filter(({ choose }) => choose)
+        .map(({ name, sourceCount, ratio, unit }) => {
+          const count = getCount(sourceCount, ratio)
+          return [
+            name,
+            ' ',
+            count,
+            unit
+          ].join('')
+        }).join('\n')
     }
   },
 
@@ -136,6 +218,13 @@ export default {
     //     this.$refs.multipleTable.toggleAllSelection()
     //   }
     // }
+  },
+
+  filters: {
+    formatNum(value) {
+      if (value % 1 === 0) return value
+      return value.toFixed(1)
+    }
   },
 
   async mounted () {
@@ -280,6 +369,139 @@ export default {
       }
     },
 
+    getTotal (arr) {
+      const len = arr.length
+      if (len === 0) return []
+
+      const totalMap = {
+        /**
+         * key: '名稱,零售價'
+         * value: ['名稱', '', '單位', '零售價', '數量++', '金額$++']
+         */
+      }
+      for (let i = 0; i < len; i++) {
+        const { list } = arr[i]
+        this.coverlist(list, totalMap)
+      }
+
+      // Total
+      return this.getTotalList2(totalMap)
+    },
+    async getTxt () {
+      const len = this.multipleSelection.length
+      if (len > 0) {
+
+        // copy multipleSelection
+        const multiple = []
+        for (let i = 0; i < len; i++) {
+          const item = this.multipleSelection[i]
+          const copy = Object.assign({}, item)
+          multiple.push(copy)
+        }
+
+        //  fullscreen
+        const loading = this.$loading({
+          lock: true,
+          text: 'Waiting...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
+
+        try {
+          // const canDownload = true
+          const arr = []
+          for (let i = 0; i < len; i++) {
+            const { filepath, name, key, mtime } = multiple[i]
+            // console.log({ filepath, name, key, mtime })
+
+            const msg = {
+              key: 'coverTxt',
+              req: {
+                filepath,
+                name
+              }
+            }
+            const { code, message, data } = await this.$$ipc.send(msg)
+
+            let checked = -1
+            if (code === 0) {
+              arr.push(data)
+              checked = 1
+            }
+
+            const index = this.findIndex(key)
+            if (index > -1) {
+              const row = {
+                filepath,
+                name,
+                key,
+                mtime,
+                checked
+              }
+              this.txtlist.splice(index, 1, row)
+
+              if (checked === 1) {
+                this.$refs.multipleTable.toggleRowSelection(row)
+              }
+            }
+
+
+            if (checked === -1) {
+              this.$notify.error({
+                position: 'bottom-left',
+                title: code,
+                message
+              })
+              loading.close()
+              return
+            }
+          }
+
+          const total = this.getTotal(arr)
+          console.log({ total })
+
+          const tlen = total.length
+          if (tlen > 0) {
+            const list = []
+            for (let i = 0; i < tlen; i++) {
+              const [sourceName, sourceUnit, sourceCount] = total[i]
+
+              const msg = {
+                key: 'getTxt',
+                req: {
+                  sourceName,
+                  sourceUnit
+                }
+              }
+              const { data: { key, name, unit, ratio, choose } } = await this.$$work.send(msg)
+
+              list.push({
+                key, sourceName, sourceUnit,
+                name, unit, ratio, choose,
+                // 特殊不用保存到 db
+                sourceCount
+              })
+            }
+            this.tlist = list
+
+            this.showTxt = true
+          }
+
+          loading.close()
+        } catch (error) {
+          console.log(error.message)
+          const code = error.status || error.code || '1000004'
+          const message = error.message || 'unknown error 1000004'
+          this.$notify.error({
+            position: 'bottom-left',
+            title: code,
+            message
+          })
+          loading.close()
+        }
+      }
+    },
+
     getTotalList(totalMap) {
       const list = []
       for (const key in totalMap) {
@@ -293,6 +515,23 @@ export default {
       })
 
       map.unshift(['名稱', '', '單位', '零售價', '總數量', '總金額$'])
+
+      return map
+    },
+    getTotalList2(totalMap) {
+      const list = []
+      for (const key in totalMap) {
+        list.push(totalMap[key])
+      }
+
+      const map = list.map(item => {
+        return [
+          item[0],
+          // item[0].split('(')[0].trim(),
+          item[2].split('/')[0].trim(),
+          item[4]
+        ]
+      })
 
       return map
     },
@@ -429,6 +668,34 @@ export default {
             message
           })
         })
+    },
+
+    copyTxt() {
+      const txt = document.getElementById('txtout')
+      txt.select() // 选择对象
+      document.execCommand('Copy') // 执行浏览器复制命令
+      // alert('已复制好，可贴粘。')
+      this.$notify.success({
+        position: 'bottom-right',
+        title: 'Copy',
+        message: '已复制好，可贴粘'
+      })
+    },
+
+    async setItem({ key, sourceName, sourceUnit, name, unit, ratio, choose }) {
+      const msg = {
+        key: 'setTxt',
+        req: {
+          key,
+          sourceName,
+          sourceUnit,
+          name,
+          unit,
+          ratio,
+          choose
+        }
+      }
+      await this.$$work.send(msg)
     }
   }
 }
@@ -437,5 +704,66 @@ export default {
 <style scoped>
 .home-search {
   margin-bottom: 16px;
+}
+
+.home-txt {
+  background: white;
+  position: fixed;
+  z-index: 1000;
+  left: 100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transition: left 300ms ease-out;
+
+  display: flex;
+  flex-direction: column;
+}
+.home-txt.showTxt {
+  left: 0;
+  transition: left 300ms ease-in;
+}
+
+.home-txt .close {
+  display: flex;
+  justify-content: space-between;
+}
+
+.close-home-btn {
+  padding: 8px;
+  font-size: 32px;
+}
+
+.copy-btn {
+  padding: 8px;
+  font-size: 24px;
+  color: #409EFF;
+}
+
+.home-txt .container {
+  flex: auto;
+  overflow: hidden;
+  display: flex;
+  padding: 0 8px 8px;
+}
+.home-txt .container .item {
+  flex: auto;
+}
+
+.item.table {
+  padding: 8px;
+  overflow: auto;
+}
+
+.item.txt {
+  padding: 8px;
+}
+
+.txttable tr.ignore {
+  color: #ddd;
+  text-decoration-line: line-through;
+}
+.txttable td {
+  border-top: 1px solid #ddd;
 }
 </style>

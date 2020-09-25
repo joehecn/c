@@ -10,6 +10,7 @@ import {
   Button,
   ButtonGroup,
   Card,
+  Checkbox,
   Col,
   Container,
   DatePicker,
@@ -49,6 +50,7 @@ Vue.component(Backtop.name, Backtop)
 Vue.component(Button.name, Button)
 Vue.component(ButtonGroup.name, ButtonGroup)
 Vue.component(Card.name, Card)
+Vue.component(Checkbox.name, Checkbox)
 Vue.component(Col.name, Col)
 Vue.component(Container.name, Container)
 Vue.component(DatePicker.name, DatePicker)

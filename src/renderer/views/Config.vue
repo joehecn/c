@@ -14,7 +14,7 @@
         class="config-form-item"
         type="primary"
         @click="selectDir">Select work directory</el-button>
-
+      <!-- for test -->
       <!-- <el-button
         class="config-form-item"
         @click="resetDir">Reset</el-button> -->
@@ -70,6 +70,7 @@ export default {
       }
     },
 
+    // for test
     async resetDir () {
       const msg = {
         key: 'resetDir',

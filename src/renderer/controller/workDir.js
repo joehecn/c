@@ -26,6 +26,7 @@ const workDirController = {
     }
   },
 
+  // for test
   async removeWorkDir () {
     await workDirService.remove('workDir')
     store.commit('setWorkDir', '')
