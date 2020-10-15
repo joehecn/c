@@ -26,7 +26,10 @@
 
 <script>
 import { mapActions } from 'vuex'
-// import config from '../config/index.js'
+
+// // for test cEmitter
+// import cEmitter from '../frontend/cEmitter.js'
+// import { v4 as uuidv4 } from 'uuid'
 
 export default {
   data() {
@@ -36,11 +39,39 @@ export default {
       loading: false
     }
   },
-  // computed: {
-  //   ...mapState({
-  //     loading: state => state.loading
+
+  // // for test cEmitter
+  // mounted() {
+  //   console.log(uuidv4())
+  //   console.log(uuidv4())
+
+  //   const _id = uuidv4()
+  //   cEmitter.once(_id, res => {
+  //     console.log({ _id, res })
+  //   })
+
+  //   cEmitter.emit(_id, { test: 'cEmitter ok' })
+  // },
+
+  // // for test back
+  // mounted() {
+  //   this.$$back.sendWork('testOK', { arg: 'OK 1' }).then(res => {
+  //     console.log('----- testOK', res)
+  //   })
+
+  //   this.$$back.sendWork('testError', { arg: 'ERROR 1' }).then(res => {
+  //     console.log('----- testError', res)
+  //   })
+
+  //   this.$$back.sendWork('testOK', { arg: 'OK 2' }).then(res => {
+  //     console.log('----- testOK', res)
+  //   })
+
+  //   this.$$back.sendWork('testError', { arg: 'ERROR 2' }).then(res => {
+  //     console.log('----- testError', res)
   //   })
   // },
+
   methods: {
     ...mapActions([
       'setUser'
@@ -53,15 +84,9 @@ export default {
       if (userName && password) {
         this.loading = true
 
-        const msg = {
-          key: 'login',
-          req: {
-            userName,
-            password
-          }
-        }
-
-        const { code, message } = await this.$$work.send(msg)
+        const { code, message } = await this.$$back.sendWork('login', {
+          userName, password
+        })
         // console.log({ code, message })
         if (code === 0) {
           this.setUser({ userName })

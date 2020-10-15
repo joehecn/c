@@ -19,21 +19,15 @@ import App from './App.vue'
 import store from './store/index.js'
 import router from './router/index.js'
 
-import ipc from './ipc/index.js'
-import work from './work/index.js'
+import back from './frontend/back.js'
 
 import { version } from '../../package.json'
-import github from './github/index.js'
-
-import userController from './controller/user.js'
-import workDirController from './controller/workDir.js'
 
 import fun from '../util/fun.js'
 import { shell } from 'electron'
 
 import { ipcRenderer } from 'electron'
 import { ebtRenderer } from 'electron-baidu-tongji'
-// import { ebtRenderer } from '../tongji'
 
 const { checkVersion } = fun
 window.JOE_GLOBAL_SHELL = shell
@@ -42,8 +36,8 @@ const BAIDU_SITE_ID = 'f3b6b71c1bc16c915445fd90679f9934'
 
 
 Vue.prototype.$$moment = moment
-Vue.prototype.$$ipc = ipc
-Vue.prototype.$$work = work
+Vue.prototype.$$back = back
+
 // Vue.prototype.$$echarts = echarts
 
 /**
@@ -52,13 +46,23 @@ Vue.prototype.$$work = work
 Vue.config.productionTip = false
 
 document.title = `c ${version}`
+
 /**
  * 检查版本
  */
-github().then(res => {
-  // console.log(res)
-  store.commit('setGithub', res)
-  const checked = checkVersion(res.tag_name, version)
+back.sendWork('getGithub').then(({ code, message, data }) => {
+  // console.log({ code, message, data })
+  if (code !== 0) {
+    Vue.prototype.$notify.warning({
+      position: 'top-right',
+      title: '检查更新失败',
+      message: message || 'fail'
+    })
+    return
+  }
+
+  store.commit('setGithub', data)
+  const checked = checkVersion(data.tag_name, version)
   if (checked === 0) {
     // 0 - 大版本升级 强制更新：一般是修复重大 BUG
     router.replace('github')
@@ -67,20 +71,26 @@ github().then(res => {
     Vue.prototype.$notify({
       title: '提示',
       dangerouslyUseHTMLString: true,
-      message: `<strong>有新版本(${res.tag_name}): <a href="javascript:void(0);" onclick="JOE_GLOBAL_SHELL.openExternal('${res.html_url}');return false;">点击链接查看详情</a></strong>`,
+      message: `<strong>有新版本(${data.tag_name}): <a href="javascript:void(0);" onclick="JOE_GLOBAL_SHELL.openExternal('${data.html_url}');return false;">点击链接查看详情</a></strong>`,
       duration: 0
     })
   }
-}).catch(err => {
-  console.log('---- github() catch err')
-  console.error(err)
 })
 
 // init admin
-userController.initAdmin().then(/* console.log */)
+back.sendWork('initAdmin')
+  // .then(({ code, message, data }) => {
+  //   console.log({ code, message, data })
+  // })
 
 // init work directory
-workDirController.initWorkDir().then(/* console.log */)
+back.sendWork('initWorkDir')
+  .then(({ data }) => {
+    // console.log({ code, message, data })
+    if (data) {
+      store.commit('setWorkDir', data)
+    }
+  })
 
 // 百度统计
 ebtRenderer(ipcRenderer, BAIDU_SITE_ID, router)

@@ -1,60 +1,81 @@
+/*
+落單編號
+地區
+稱呼
+送貨地址
+手機號碼
+送貨時段
+取貨位置
 
+已選
+*/
 import fun from './fun.js'
-const { createErr } = fun
+const { createErr, accMul } = fun
 
-const accMul = (arg1, arg2) => {
-  let m = 0
-  let s1 = arg1.toString()
-  let s2 = arg2.toString()
-
-  try {
-    const after = s1.split('.')[1]
-    if (after && after.length) {
-      m += after.length
+const getIndex = (headKeys, keyStr) => {
+  for (let i = 0, len = headKeys.length; i < len; i++) {
+    const key = headKeys[i]
+    if (keyStr.indexOf(key) === 0) {
+      return i
     }
-  } catch (e) { return 0 }
-
-  try {
-    const after = s2.split('.')[1]
-    if (after && after.length) {
-      m += after.length
-    }
-  } catch (e) { return 0 }
-
-  return Number(s1.replace('.', '')) * Number(s2.replace('.', '')) / Math.pow(10, m)
-}
-
-const coverFirst = first => {
-  // console.log({ first })
-
-  if (first.length === 8) {
-    const [reginKey, reginValue,, pointKey, pointValue] = first
-    const selected = first[6]
-    const listCount = parseInt(selected.split('(')[1])
-    // console.log({ listCount })
-    let send = 0
-    // console.log({ pointValue })
-    const _s = pointValue && pointValue.split('($')[1]
-    if (_s) {
-      const p = parseFloat(_s.trim())
-      const pp = accMul(p, 100)
-      send = pp || 0
-    }
-
-    return { head: [reginKey, reginValue, pointKey, pointValue], send, listCount }
-  } else {
-    const [reginKey, reginValue] = first
-
-    const selected = first[first.length - 2]
-
-    const listCount = parseInt(selected.split('(')[1])
-    // console.log({ listCount })
-    const pointKey = ''
-    const pointValue = ''
-    const send = 0
-
-    return { head: [reginKey, reginValue, pointKey, pointValue], send, listCount }
   }
+
+  return -1
+}
+const coverFirst = first => {
+  const headArr = [
+    '落單編號',
+    '地區',
+    '稱呼',
+    '送貨地址',
+    '手機號碼',
+    '送貨時段',
+    '取貨位置'
+  ]
+  const headKeys = [...headArr]
+  // const head = []
+  const headObj = {}
+  let listCount = 0
+  let send = 0
+  for (let i = 0, len = first.length; i < len; i++) {
+    const keyStr = first[i]
+    const index = getIndex(headKeys, keyStr)
+    if (index === -1) {
+      if (keyStr.indexOf('已選') === 0) {
+        listCount = parseInt(keyStr.split('(')[1])
+      }
+      continue
+    }
+    const key = headKeys.splice(index, 1)[0]
+    const item = [`${key}:`]
+    i++
+    const value = first[i].replace('\r', '')
+    // console.log({ key, index, value })
+    if (value) {
+      item.push(value)
+
+      if (key === '取貨位置') {
+        const _s = value.split('($')[1]
+
+        if (_s) {
+          const p = parseFloat(_s.trim())
+          const pp = accMul(p, 100)
+          send = pp || 0
+        }
+      }
+    }
+
+    headObj[key] = item
+    i++
+  }
+
+  const head = headArr.map(key => {
+    return headObj[key] || [`${key}:`]
+  })
+  head.push([''])
+
+  // console.log({ head, send, listCount })
+  return { head, send, listCount }
 }
 const getHKY = price => {
   if (price === undefined) return 0
@@ -74,7 +95,7 @@ const coverIts = its => {
   return [zh, en, unit, unitPrice, count, totalPrice]
 }
 const coverStr = str => {
-  // TODO: 首單9折
+  // console.log('coverStr')
   const discount = 0
 
   const arr = str.split('-----------------------')

@@ -78,7 +78,7 @@ const createMainWindow = () => {
   let win = new BrowserWindow({
     width: 800,
     height: 700,
-    // fullscreen: true,
+    fullscreen: true,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true // 在WebWorkers中使用多线程Node.js
@@ -137,8 +137,9 @@ app.on('activate', () => {
 // 在这个文件中，你可以续写应用剩下主进程代码。
 // 也可以拆分成几个文件，然后用 require 导入。
 ipcMain.on('msg', async (event, msg) => {
+  // console.log({ msg })
   await ctrlMsg(msg, mainWindow)
-  event.reply(msg.keyTime, msg)
+  event.reply(msg._uuid, msg)
 })
 
 // 百度统计

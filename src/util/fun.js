@@ -6,6 +6,29 @@ const createErr = (code, message) => {
   return err
 }
 
+const accMul = (arg1, arg2) => {
+  let m = 0
+  let s1 = arg1.toString()
+  let s2 = arg2.toString()
+
+  try {
+    const after = s1.split('.')[1]
+    if (after && after.length) {
+      m += after.length
+    }
+  } catch (e) { return 0 }
+
+  try {
+    const after = s2.split('.')[1]
+    if (after && after.length) {
+      m += after.length
+    }
+  } catch (e) { return 0 }
+
+  const num = Number(s1.replace('.', '')) * Number(s2.replace('.', '')) / Math.pow(10, m)
+  return parseInt(num)
+}
+
 const fixNumber = num => {
   const n = num / 100
   return Number(n.toFixed(2))
@@ -40,6 +63,7 @@ const getCount = (sourceCount, ratio) => {
 
 export default {
   createErr,
+  accMul,
   fixNumber,
   checkVersion,
   getCount

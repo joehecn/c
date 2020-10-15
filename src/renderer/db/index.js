@@ -24,7 +24,7 @@ const makeMethod = (methods, createErr) => {
         return res
       }
     } catch (err) {
-      console.log('---- db makeMethod() catch err')
+      console.error('---- db makeMethod() catch err')
       console.error({ err })
       throw createErr(1000, err.message || '数据库错误')
     }
@@ -42,7 +42,6 @@ const getStore = (name, storeName) => {
 
 const methods = {
   async set ({ name, storeName, key, value }) {
-    // console.log({ name, storeName, key, value })
     const store = getStore(name, storeName)
     await store.setItem(key, value)
   },

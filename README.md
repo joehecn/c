@@ -23,6 +23,10 @@ Convert txt to excel
 5.1.0
 - [x] A: 给供应商的文本
 
+5.2.0
+- [x] A: Excel formula
+- [x] A: 折扣和备注
+
 ## TODO
 - [x] 系统初始化时设置一次当前日期
 - [x] 每一次日期改变时，全选一次 item

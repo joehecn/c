@@ -12,9 +12,9 @@ const userController = {
     // console.log({ admin })
 
     if (!admin) {
-      // console.log('--- set admin')
       await userService.add('admin', 'admin')
       admin = await userService.find('admin')
+      // console.log('--- set admin')
       // console.log({ admin })
     }
 

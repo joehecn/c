@@ -24,7 +24,7 @@
 
 <script>
 import JLayout from '../components/JLayout.vue'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   components: {
@@ -38,6 +38,10 @@ export default {
   },
 
   methods: {
+    ...mapActions([
+      'setWorkDir'
+    ]),
+
     async selectDir () {
       const msg = {
         key: 'selectDir',
@@ -48,37 +52,39 @@ export default {
         msg.req.defaultPath = this.workDir
       }
 
-      const { code, message, data } = await this.$$ipc.send(msg)
-      if (code === 0) {
-        // console.log(data)
-        const { canceled, filePaths } = data
-        // console.log({ data, canceled, filePaths })
-        if (!canceled) {
-          const workDir = filePaths[0]
-          // console.log({ workDir })
-          if (workDir) {
-            const msg = {
-              key: 'updateWorkDir',
-              req: {
-                workDir
-              }
-            }
-            await this.$$work.send(msg)
-            this.$router.push('/')
-          }
-        }
-      }
-    },
+      const { code, message, data } = await this.$$back.sendIpc(msg)
 
-    // for test
-    async resetDir () {
-      const msg = {
-        key: 'resetDir',
-        req: {}
-      }
+      if (code !== 0) return
 
-      await this.$$work.send(msg)
+      const { canceled, filePaths } = data
+
+      if (canceled) return
+
+      const workDir = filePaths[0]
+
+      if (!workDir) return
+
+      const res = await this.$$back.sendWork('updateWorkDir', workDir)
+
+      if (res.code !== 0) return
+
+      this.setWorkDir(workDir)
+      this.$router.push('/')
     }
+
+    // // for test
+    // async resetDir () {
+    //   const { code, message } = await this.$$back.sendWork('resetDir')
+    //   if (code === 0) {
+    //     this.setWorkDir('')
+    //   } else {
+    //     this.$notify.error({
+    //       position: 'bottom-left',
+    //       title: code,
+    //       message
+    //     })
+    //   }
+    // }
   }
 }
 </script>
