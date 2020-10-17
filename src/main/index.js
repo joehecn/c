@@ -78,7 +78,7 @@ const createMainWindow = () => {
   let win = new BrowserWindow({
     width: 800,
     height: 700,
-    fullscreen: true,
+    // fullscreen: true,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true // 在WebWorkers中使用多线程Node.js

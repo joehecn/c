@@ -27,6 +27,9 @@ Convert txt to excel
 - [x] A: Excel formula
 - [x] A: 折扣和备注
 
+5.2.1
+- [x] U: Cancel fullscreen
+
 ## TODO
 - [x] 系统初始化时设置一次当前日期
 - [x] 每一次日期改变时，全选一次 item
